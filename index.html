@@ -1,0 +1,186 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#090909">
+  <title>LumyStream</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+  <header class="header">
+    <h1 onclick="showPage('home')">Lumy<span>Stream</span></h1>
+    <button class="header-search" onclick="showPage('search')" aria-label="Cerca">⌕</button>
+  </header>
+
+  <main>
+    <section id="home-page" class="page active">
+      <section id="hero" class="hero">
+        <div class="hero-content">
+          <span>IN EVIDENZA</span>
+          <h2>Scopri qualcosa di nuovo</h2>
+          <p>Il prossimo film da guardare ti aspetta.</p>
+          <button onclick="showPage('movies')">Esplora i film</button>
+        </div>
+      </section>
+
+      <section class="content-section">
+        <h2>Continua a guardare</h2>
+        <div id="continue-list" class="movie-grid"></div>
+      </section>
+
+      <section class="content-section">
+        <h2>Generi</h2>
+        <div id="home-genres" class="genre-chips"></div>
+      </section>
+
+      <section class="content-section">
+        <h2>Film popolari</h2>
+        <div id="popular-movies" class="movie-grid"></div>
+      </section>
+
+      <section class="content-section">
+        <h2>Serie TV popolari</h2>
+        <div id="popular-series" class="movie-grid"></div>
+      </section>
+
+      <section class="content-section">
+        <h2>Più votati</h2>
+        <div id="top-rated" class="movie-grid"></div>
+      </section>
+    </section>
+
+    <section id="movies-page" class="page">
+      <h2>Film</h2>
+      <div class="filters">
+        <select id="movie-genre" onchange="loadMovies()">
+          <option value="">Tutti i generi</option>
+        </select>
+        <select id="movie-sort" onchange="loadMovies()">
+          <option value="popularity.desc">Più popolari</option>
+          <option value="vote_average.desc">Più votati</option>
+          <option value="primary_release_date.desc">Più recenti</option>
+          <option value="primary_release_date.asc">Più vecchi</option>
+        </select>
+        <input id="movie-year" type="number" placeholder="Anno" min="1900" max="2100"
+          onchange="loadMovies()">
+        <input id="movie-rating" type="number" placeholder="Voto minimo (es. 7)" min="0" max="10" step="0.5"
+          onchange="loadMovies()">
+      </div>
+      <div id="movies-list" class="movie-grid"></div>
+      <button id="movies-more" class="more-button" onclick="loadMovies(true)">Carica altri</button>
+    </section>
+
+    <section id="series-page" class="page">
+      <h2>Serie TV</h2>
+      <div class="filters">
+        <select id="series-genre" onchange="loadSeries()">
+          <option value="">Tutti i generi</option>
+        </select>
+        <select id="series-sort" onchange="loadSeries()">
+          <option value="popularity.desc">Più popolari</option>
+          <option value="vote_average.desc">Più votate</option>
+          <option value="first_air_date.desc">Più recenti</option>
+          <option value="first_air_date.asc">Più vecchie</option>
+        </select>
+        <input id="series-year" type="number" placeholder="Anno" min="1900" max="2100"
+          onchange="loadSeries()">
+        <input id="series-rating" type="number" placeholder="Voto minimo (es. 7)" min="0" max="10" step="0.5"
+          onchange="loadSeries()">
+      </div>
+      <div id="series-list" class="movie-grid"></div>
+      <button id="series-more" class="more-button" onclick="loadSeries(true)">Carica altre</button>
+    </section>
+
+    <section id="favorites-page" class="page">
+      <h2>I miei preferiti</h2>
+      <div id="favorites-list" class="movie-grid"></div>
+    </section>
+
+    <section id="search-page" class="page">
+      <h2>Cerca</h2>
+      <input id="search-input" type="search" placeholder="Cerca film o serie TV..."
+        oninput="searchContent()">
+      <div id="search-results" class="movie-grid"></div>
+    </section>
+
+    <section id="settings-page" class="page">
+      <h2>Impostazioni</h2>
+      <div class="setting">
+        <label for="source-url">URL sorgente esterna</label>
+        <input id="source-url" type="url" placeholder="https://esempio.com/?id={id}">
+        <p class="hint">Puoi usare {id}, {title} e {type} nell'indirizzo.</p>
+
+        <label for="source-mode">Modalità di apertura</label>
+        <select id="source-mode">
+          <option value="embed">Player integrato</option>
+          <option value="external">Browser esterno</option>
+        </select>
+        <button onclick="saveSource()">Salva sorgente</button>
+        <button class="secondary" onclick="removeSource()">Rimuovi sorgente</button>
+      </div>
+
+      <div class="setting">
+        <label for="theme-select">Tema</label>
+        <select id="theme-select" onchange="changeTheme()">
+          <option value="dark">Scuro</option>
+          <option value="light">Chiaro</option>
+        </select>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-page="home">⌂<span>Home</span></button>
+    <button class="nav-item" data-page="movies">▣<span>Film</span></button>
+    <button class="nav-item" data-page="series">▤<span>Serie</span></button>
+    <button class="nav-item" data-page="favorites">♡<span>Preferiti</span></button>
+    <button class="nav-item" data-page="search">⌕<span>Cerca</span></button>
+    <button class="nav-item" data-page="settings">⚙<span>Altro</span></button>
+  </nav>
+
+  <div id="details-modal" class="modal">
+    <div class="modal-content">
+      <button class="close" onclick="closeDetails()">✕</button>
+      <img id="details-image" class="details-image" alt="">
+      <h2 id="details-title"></h2>
+      <p id="details-meta"></p>
+      <p id="details-rating"></p>
+      <div id="details-genres" class="genre-chips"></div>
+      <p id="details-overview"></p>
+      <h3>Cast</h3>
+      <div id="details-cast" class="cast-list"></div>
+
+      <div id="trailer-container" class="trailer-container"></div>
+
+      <div class="tmdb-info">
+        <span>ID TMDb</span>
+        <div class="tmdb-code">
+          <code id="details-tmdb-id">-</code>
+          <button onclick="copyTmdbId()">Copia</button>
+        </div>
+      </div>
+
+      <button id="favorite-button" class="favorite-button" onclick="toggleFavorite()">♡ Aggiungi ai preferiti</button>
+      <button class="watch-button" onclick="watchContent()">Guarda</button>
+
+      <h3>Contenuti simili</h3>
+      <div id="similar-list" class="movie-grid"></div>
+    </div>
+  </div>
+
+  <div id="player-modal" class="modal">
+    <div class="player-content">
+      <div class="player-header">
+        <h3 id="player-title">Player</h3>
+        <button class="close" onclick="closePlayer()">✕</button>
+      </div>
+      <iframe id="external-player" allowfullscreen referrerpolicy="no-referrer"></iframe>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
